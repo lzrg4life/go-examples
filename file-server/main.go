@@ -13,7 +13,12 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os/exec"
 )
+
+func open(url string) {
+	exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+}
 
 func main() {
 	port := flag.String("p", "8100", "port to serve on")
@@ -22,6 +27,10 @@ func main() {
 
 	http.Handle("/", http.FileServer(http.Dir(*directory)))
 
-	log.Printf("Serving %s on HTTP port: %s\n", *directory, *port)
-	log.Fatal(http.ListenAndServe(":"+*port, nil))
+	strport := ":" + *port
+	url := "http://localhost" + strport
+	open(url)
+
+	log.Printf("Serving %s on %s\n", *directory, url)
+	log.Fatal(http.ListenAndServe(strport, nil))
 }
